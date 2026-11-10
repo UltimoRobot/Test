@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimal Paperclip Game</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #fff; color: #000; }
+        button { font-family: monospace; padding: 5px 10px; margin: 5px 0; cursor: pointer; }
+        .section { margin-bottom: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1>Paperclip Factory</h1>
+    
+    <div class="section">
+        <p>Paperclips: <span id="clips">0</span></p>
+        <button onclick="makeClip()">Make Paperclip</button>
+    </div>
+
+    <div class="section">
+        <p>Funds: $<span id="funds">0.00</span></p>
+        <p>Clips Price: $<span id="price">0.25</span></p>
+        <button onclick="raisePrice()">Raise Price</button>
+        <button onclick="lowerPrice()">Lower Price</button>
+    </div>
+
+    <div class="section">
+        <h3>Upgrades</h3>
+        <p>AutoClippers: <span id="autoClippers">0</span> (Cost: $<span id="clipperCost">5.00</span>)</p>
+        <button onclick="buyClipper()">Buy AutoClipper</button>
+    </div>
+
+    <script>
+        // GAME STATE
+        let clips = 0;
+        let funds = 0;
+        let price = 0.25;
+        let autoClippers = 0;
+        let clipperCost = 5.00;
+
+        // CORE ACTIONS
+        function makeClip() {
+            clips++;
+            updateUI();
+        }
+
+        function raisePrice() {
+            price += 0.01;
+            updateUI();
+        }
+
+        function lowerPrice() {
+            if (price > 0.01) price -= 0.01;
+            updateUI();
+        }
+
+        function buyClipper() {
+            if (funds >= clipperCost) {
+                funds -= clipperCost;
+                autoClippers++;
+                clipperCost *= 1.15; // Price scales up
+                updateUI();
+            }
+        }
+
+        // GAME LOOP (Runs every second)
+        setInterval(function() {
+            // AutoClippers produce paperclips automatically
+            if (autoClippers > 0) {
+                clips += autoClippers;
+            }
+            
+            // Simulate basic market demand (simpler than the real game)
+            // Lower price = higher chance of selling a clip per second
+            let demand = Math.max(0, 1 - (price / 0.50)); 
+            let clipsToSell = Math.min(clips, Math.floor(autoClippers + 1) * demand);
+            
+            if (clipsToSell > 0) {
+                clips -= clipsToSell;
+                funds += clipsToSell * price;
+            }
+
+            updateUI();
+        }, 1000);
+
+        // RENDER CHANGES TO SCREEN
+        function updateUI() {
+            document.getElementById('clips').innerText = Math.floor(clips);
+            document.getElementById('funds').innerText = funds.toFixed(2);
+            document.getElementById('price').innerText = price.toFixed(2);
+            document.getElementById('autoClippers').innerText = autoClippers;
+            document.getElementById('clipperCost').innerText = clipperCost.toFixed(2);
+        }
+    </script>
+</body>
+</html>
